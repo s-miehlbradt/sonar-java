@@ -41,7 +41,6 @@ import org.sonar.squidbridge.api.SourceFile;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import java.io.File;
 import java.util.Set;
 
@@ -65,8 +64,16 @@ public class ChecksBridge {
       if (issuable != null) {
         for (CheckMessage checkMessage : messages) {
           Object check = checkMessage.getCheck();
-
-          RuleKey ruleKey = getRuleKey((JavaCheck) check);
+          RuleKey ruleKey;
+          if(check instanceof String) {
+            ActiveRule activeRule = rulesProfile.getActiveRule(CheckList.REPOSITORY_KEY, (String) check);
+            if(activeRule == null) {
+              continue;
+            }
+            ruleKey = activeRule.getRule().ruleKey();
+          } else {
+            ruleKey = getRuleKey((JavaCheck) check);
+          }
           if (ruleKey == null) {
             throw new IllegalStateException("Cannot find rule key for instance of " + check.getClass());
           }
