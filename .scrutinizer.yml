@@ -1,3 +1,3 @@
 inherit: false
-check:
+checks:
   java: true
